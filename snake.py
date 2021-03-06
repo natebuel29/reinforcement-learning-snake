@@ -6,7 +6,7 @@ import math
 pygame.init()
 
 
-#TODO:create snake class to encapsulate all methods/variables related to snake (move, draw, die, get head, direction)
+#MAYBE:create snake class to encapsulate all methods/variables related to snake (move, draw, die, get head, direction)
 ## and for apple --> (spawn at random location, draw, and cordinates)
 
 window_height = 360
