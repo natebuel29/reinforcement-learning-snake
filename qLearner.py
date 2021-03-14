@@ -18,9 +18,11 @@ class qLearner(object):
         self.block_size = block_size
 
         #Learning parameters
-        self.epsilon = 0.1
+        self.epsilon = 0.7
         self.lr = 0.7
         self.discount = .8
+
+        self.decrease_value = 0.001
 
         #State/Action history
         self.qvalues = self.load_qvalues()

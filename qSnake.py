@@ -73,6 +73,8 @@ def game_loop():
     xValue = snake[len(snake)-1][0] + xSpeed
     yValue = snake[len(snake)-1][1] + ySpeed
 
+    direction = "right"
+
     appleX = math.ceil(randint(0, window_width-10)/10.0) * 10
     appleY = math.ceil(randint(0, window_height-10)/10.0) * 10
     clock = pygame.time.Clock()
@@ -83,22 +85,26 @@ def game_loop():
                 running = False
         
         qLearnerAction = qlearner.act([(xValue, yValue)], (appleX, appleY))
-        if qLearnerAction == 'left':
+        if qLearnerAction == 'left' and direction != "right":
             # move left
             xSpeed = -10
             ySpeed = 0
-        elif qLearnerAction == 'right':
+            direction = "left"
+        elif qLearnerAction == 'right' and direction != "left":
             # move right
             xSpeed = 10
             ySpeed = 0
-        elif qLearnerAction == 'up':
+            direction = "right"
+        elif qLearnerAction == 'up' and direction != "down":
             # move up
             xSpeed = 0
             ySpeed = -10
-        elif qLearnerAction == 'down':
+            direction = "up"
+        elif qLearnerAction == 'down' and direction != "up":
             # move down
             xSpeed = 0
             ySpeed = 10
+            direction = "down"
         xValue = snake[len(snake)-1][0] + xSpeed
         yValue = snake[len(snake)-1][1] + ySpeed
         snake.append((xValue, yValue))
@@ -148,10 +154,7 @@ qlearner = qLearner.qLearner(window_width, window_height, BLOCK_SIZE)
 while True:
     pygame.init()
     qlearner.reset()
-    if game_count > 100:
-        qlearner.epsilon = 0
-    else:
-        qlearner.epsilon = .1
+    qlearner.epsilon = qlearner.epsilon - 0.01
     score, reason = game_loop()
     print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason}")
     game_count += 1
