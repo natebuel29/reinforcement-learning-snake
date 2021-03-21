@@ -7,11 +7,36 @@ import qLearner
 pygame.init()
 
 
+class Apple:
+    def __init__(self,spawn_x,spawn_y):
+        self.x = spawn_x
+        self.y = spawn_y
+
+        self.loc = (self.x,self.y)
+    
+    def random_loc(self,snake,apples=[]):
+        valid_loc = False
+
+        while not valid_loc:
+            apple_x = math.ceil(randint(0, window_width-10)/10.0) * 10
+            apple_y = math.ceil(randint(0, window_height-10)/10.0) * 10
+
+            apple_cords = (apple_x, apple_y)
+
+            if apple_cords not in snake and apple_cords not in apples:
+                valid_loc = True
+        self.x = apple_x
+        self.y = apple_y
+        self.loc = (self.x,self.y)
+    
+    def draw(self):
+          pygame.draw.rect(surface, RED, pygame.Rect(self.x, self.y, 10, 10))
+
 # MAYBE:create snake class to encapsulate all methods/variables related to snake (move, draw, die, get head, direction)
 # and for apple --> (spawn at random location, draw, and cordinates)
 
-window_height = 360
-window_width = 360
+window_height = 300
+window_width = 300
 BLOCK_SIZE = 20
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
@@ -28,18 +53,19 @@ def show_score(snake):
     return text
 
 # draw game to surface
-def draw_surface(snake, appleX, appleY):
+def draw_surface(snake, apples):
     surface.fill(BLACK)
     draw_snake(snake)
-    draw_apple(appleX, appleY)
+    for apple in apples:
+        apple.draw()
     text = show_score(snake)
     surface.blit(text, (0, 0))
     pygame.display.update()
 
 
-def draw_apple(appleX, appleY):
-    # draw a red rect to represent an apple
-    pygame.draw.rect(surface, RED, pygame.Rect(appleX, appleY, 10, 10))
+# def draw_apple(appleX, appleY):
+#     # draw a red rect to represent an apple
+#     pygame.draw.rect(surface, RED, pygame.Rect(appleX, appleY, 10, 10))
 
 
 def death(snake):
@@ -75,8 +101,17 @@ def game_loop():
 
     direction = "right"
 
-    appleX = math.ceil(randint(0, window_width-10)/10.0) * 10
-    appleY = math.ceil(randint(0, window_height-10)/10.0) * 10
+    starting_x_one = math.ceil(randint(0, window_width-10)/10.0) * 10
+    starting_y_one = math.ceil(randint(0, window_height-10)/10.0) * 10
+
+    starting_x_two = math.ceil(randint(0, window_width-10)/10.0) * 10
+    starting_y_two = math.ceil(randint(0, window_height-10)/10.0) * 10
+
+    apple_one = Apple(starting_x_one,starting_y_one)
+    apple_two = Apple(starting_x_two,starting_y_two)
+
+    apples = [apple_one,apple_two]
+
     clock = pygame.time.Clock()
     while running == True:
         clock.tick(12)
@@ -84,7 +119,8 @@ def game_loop():
             if event.type == pygame.QUIT:
                 running = False
         
-        qLearnerAction = qlearner.act([(xValue, yValue)], (appleX, appleY))
+        #AI only knows about one apple - we must modify state and qLearner file to be functionable with 2 apples
+        qLearnerAction = qlearner.act([(xValue, yValue)],direction, apples[0].loc)
         if qLearnerAction == 'left' and direction != "right":
             # move left
             xSpeed = -10
@@ -109,35 +145,21 @@ def game_loop():
         yValue = snake[len(snake)-1][1] + ySpeed
         snake.append((xValue, yValue))
         # if head is touching apple, then eat the apple and grow
-        if xValue == appleX and yValue == appleY:
-            eaten = True
-            apple_cords = get_new_apple_cord(snake)
-            appleX = apple_cords[0]
-            appleY = apple_cords[1]
+        for apple in apples:
+            if xValue == apple.x and yValue == apple.y:
+                eaten = True
+                apple.random_loc(snake)
 
         if eaten == False:
             snake.pop(0)
+            
         eaten = False
         running, reason = death(snake)
         running = not running
-        draw_surface(snake, appleX, appleY)
+        draw_surface(snake, apples)
 
     qlearner.update_qvalues(reason)
     return len(snake)-1, reason
-
-
-def get_new_apple_cord(snake):
-    not_in_snake = False
-
-    while not not_in_snake:
-        appleX = math.ceil(randint(0, window_width-10)/10.0) * 10
-        appleY = math.ceil(randint(0, window_height-10)/10.0) * 10
-
-        apple_cords = (appleX, appleY)
-
-        if apple_cords not in snake:
-            not_in_snake = True
-    return apple_cords
 
 
 def draw_snake(snake):
@@ -154,9 +176,12 @@ qlearner = qLearner.qLearner(window_width, window_height, BLOCK_SIZE)
 while True:
     pygame.init()
     qlearner.reset()
-    qlearner.epsilon = qlearner.epsilon - 0.01
+    if qlearner.epsilon > 0.04:
+        qlearner.epsilon = qlearner.epsilon - 0.01
+    else:
+        qlearner.epsilon = 0.04
     score, reason = game_loop()
-    print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason}")
+    print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason};Epsilon: {qlearner.epsilon}")
     game_count += 1
     if game_count % 100 == 0:
         qlearner.save_qvalues()
