@@ -185,7 +185,6 @@ while True:
         qlearner.epsilon = 0.04
     score, reason = game_loop()
     print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason}; Epsilon: {qlearner.epsilon}")
-    game_count += 1
     score_count += score
 
     if score > high_score:
@@ -193,3 +192,5 @@ while True:
     if game_count % 100 == 0:
         qlearner.save_qvalues()
         print(f"Highscore: {high_score}; Average Score: {score_count / game_count}")
+
+    game_count += 1
