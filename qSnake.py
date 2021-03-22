@@ -170,6 +170,9 @@ def draw_snake(snake):
 
 # Game Loop
 game_count = 1
+score_count = 0
+high_score = 0
+
 
 qlearner = qLearner.qLearner(window_width, window_height, BLOCK_SIZE)
 
@@ -181,7 +184,12 @@ while True:
     else:
         qlearner.epsilon = 0.04
     score, reason = game_loop()
-    print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason};Epsilon: {qlearner.epsilon}")
+    print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason}; Epsilon: {qlearner.epsilon}")
     game_count += 1
+    score_count += score
+
+    if score > high_score:
+        high_score = score
     if game_count % 100 == 0:
         qlearner.save_qvalues()
+        print(f"Highscore: {high_score}; Average Score: {score_count / game_count}")
