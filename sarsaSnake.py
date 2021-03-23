@@ -3,7 +3,7 @@ from random import randint
 import pygame
 import time
 import math
-import qLearner
+import sarsaLearner
 pygame.init()
 
 
@@ -63,6 +63,11 @@ def draw_surface(snake, apples):
     pygame.display.update()
 
 
+# def draw_apple(appleX, appleY):
+#     # draw a red rect to represent an apple
+#     pygame.draw.rect(surface, RED, pygame.Rect(appleX, appleY, 10, 10))
+
+
 def death(snake):
     head_x = snake[len(snake)-1][0]
     head_y = snake[len(snake)-1][1]
@@ -115,23 +120,23 @@ def game_loop():
                 running = False
         
         #AI only knows about one apple - we must modify state and qLearner file to be functionable with 2 apples
-        qLearnerAction = qlearner.act([(xValue, yValue)],direction, apples[0].loc)
-        if qLearnerAction == 'left' and direction != "right":
+        sarsaLearnerAction = sarsaLearner.act([(xValue, yValue)],direction, apples[0].loc)
+        if sarsaLearnerAction == 'left' and direction != "right":
             # move left
             xSpeed = -10
             ySpeed = 0
             direction = "left"
-        elif qLearnerAction == 'right' and direction != "left":
+        elif sarsaLearnerAction == 'right' and direction != "left":
             # move right
             xSpeed = 10
             ySpeed = 0
             direction = "right"
-        elif qLearnerAction == 'up' and direction != "down":
+        elif sarsaLearnerAction == 'up' and direction != "down":
             # move up
             xSpeed = 0
             ySpeed = -10
             direction = "up"
-        elif qLearnerAction == 'down' and direction != "up":
+        elif sarsaLearnerAction == 'down' and direction != "up":
             # move down
             xSpeed = 0
             ySpeed = 10
@@ -153,7 +158,7 @@ def game_loop():
         running = not running
         draw_surface(snake, apples)
 
-    qlearner.update_qvalues(reason)
+    sarsaLearner.update_qvalues(reason)
     return len(snake)-1, reason
 
 
@@ -166,14 +171,14 @@ def draw_snake(snake):
 # Game Loop
 game_count = 1
 
-qlearner = qLearner.qLearner(window_width, window_height, BLOCK_SIZE)
+sarsaLearner = sarsaLearner.sarsaLearner(window_width, window_height, BLOCK_SIZE)
 
 while True:
     pygame.init()
-    qlearner.reset()
-    qlearner.decrease_epsilon(0.01)
+    sarsaLearner.reset()
+    sarsaLearner.decrease_epsilon(0.01)
     score, reason = game_loop()
-    print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason};Epsilon: {qlearner.epsilon}")
+    print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason};Epsilon: {sarsaLearner.epsilon}")
     game_count += 1
     if game_count % 100 == 0:
-        qlearner.save_qvalues()
+        sarsaLearner.save_qvalues()

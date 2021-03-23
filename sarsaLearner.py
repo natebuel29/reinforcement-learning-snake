@@ -11,7 +11,7 @@ class GameState:
     apple: tuple
 
 #MUST IMPLEMENT SECOND APPLE
-class qLearner(object):
+class sarsaLearner(object):
     def __init__(self, window_width, window_height, block_size):
         #Game parameters
         self.window_width = window_width
@@ -91,10 +91,11 @@ class qLearner(object):
                 reward = -1
 
                 # Bellman equation - there is no future state since game is over
-                self.qvalues[state_str][actionN] = self.qvalues[state_str][actionN] + self.lr * (reward + self.discount*max(self.qvalues[new_state_str]) - self.qvalues[state_str][actionN] ) 
+                self.qvalues[state_str][actionN] = (1-self.lr) * self.qvalues[state_str][actionN] + self.lr * reward
                 reason = None
             else:
-                s1 = h['state']              # current state
+                s1 = h['state'] # current state
+                a1 = h['action']      #current action      
                 s0 = history[i+1]['state']   # previous state
                 a0 = history[i+1]['action']  # action taken at previous state
 
@@ -117,7 +118,7 @@ class qLearner(object):
                 new_state_str = self.get_state_string(s1)
 
                 #Bellman Equation
-                self.qvalues[state_str][a0] = self.qvalues[state_str][a0] + self.lr * (reward + self.discount*max(self.qvalues[new_state_str]) - self.qvalues[state_str][a0] ) 
+                self.qvalues[state_str][a0] = self.qvalues[state_str][a0] + self.lr * (reward + self.qvalues[new_state_str][a1] - self.qvalues[state_str][a0] ) 
 
     def get_state(self, snake, direction, apple):
         #Coordinates of snake head
