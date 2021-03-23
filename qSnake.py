@@ -37,7 +37,7 @@ class Apple:
 
 window_height = 300
 window_width = 300
-BLOCK_SIZE = 20
+BLOCK_SIZE = 10
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
@@ -176,10 +176,7 @@ qlearner = qLearner.qLearner(window_width, window_height, BLOCK_SIZE)
 while True:
     pygame.init()
     qlearner.reset()
-    if qlearner.epsilon > 0.04:
-        qlearner.epsilon = qlearner.epsilon - 0.01
-    else:
-        qlearner.epsilon = 0.04
+    qlearner.decrease_epsilon(0.01)
     score, reason = game_loop()
     print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason};Epsilon: {qlearner.epsilon}")
     game_count += 1

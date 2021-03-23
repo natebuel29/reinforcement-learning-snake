@@ -10,7 +10,7 @@ class GameState:
     direction: str
     apple: tuple
 
-#UPDATE THIS CLASS SO IT DOESN'T LOOK LIKE WE COPIED
+#MUST IMPLEMENT SECOND APPLE
 class qLearner(object):
     def __init__(self, window_width, window_height, block_size):
         #Game parameters
@@ -57,10 +57,10 @@ class qLearner(object):
             json.dump(self.qvalues, f)
 
     def decrease_epsilon(self,decrease_value):
-        if self.epsilon > 0: 
+        if self.epsilon > 0.04: 
             self.epsilon = self.epsilon - decrease_value
-        elif self.epsilon < 0:
-            self.epsilon = 0
+        elif self.epsilon < 0.04:
+            self.epsilon = 0.04
     
     def act(self,snake,direction,apple):
         state = self.get_state(snake, direction, apple)
