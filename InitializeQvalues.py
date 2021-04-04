@@ -10,9 +10,11 @@ heights = ['2','3','same']
 states = {}
 for i in widths:
 	for j in heights:
-		for d in directions:
-			for k in sqs:
-				states[str((i,j,d,k))] = [0,0,0,0]
+		for a in widths:
+			for b in heights:
+				for d in directions:
+					for k in sqs:
+						states[str((i,j,a,b,d,k))] = [0,0,0,0]
 
 with open("qvalues.json", "w") as f:
 	json.dump(states, f)

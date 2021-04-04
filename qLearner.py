@@ -8,7 +8,8 @@ class GameState:
     position: tuple
     surroundings: str
     direction: str
-    apple: tuple
+    apple_one: tuple
+    apple_two:tuple
 
 #MUST IMPLEMENT SECOND APPLE
 class qLearner(object):
@@ -62,9 +63,9 @@ class qLearner(object):
         elif self.epsilon < 0.04:
             self.epsilon = 0.04
     
-    def act(self,snake,direction,apple):
-        state = self.get_state(snake, direction, apple)
-    
+    def act(self,snake,direction,apple_one,apple_two):
+        state = self.get_state(snake, direction, apple_one,apple_two)
+        
         # Epsilon greedy
         rand = random.uniform(0, 1)
         if rand < self.epsilon:
@@ -91,27 +92,17 @@ class qLearner(object):
                 reward = -1
 
                 # Bellman equation - there is no future state since game is over
-                self.qvalues[state_str][actionN] = self.qvalues[state_str][actionN] + self.lr * (reward + self.discount*max(self.qvalues[new_state_str]) - self.qvalues[state_str][actionN] ) 
+                self.qvalues[state_str][actionN] = (1-self.lr) * self.qvalues[state_str][actionN] + self.lr * reward
                 reason = None
             else:
                 s1 = h['state']              # current state
                 s0 = history[i+1]['state']   # previous state
                 a0 = history[i+1]['action']  # action taken at previous state
 
-                x1 = s0.distance[0]     # x distance at previous state
-                y1 = s0.distance[1]     # y distance at previous state
-
-                x2 = s1.distance[0]     # x distance at current state
-                y2 = s1.distance[1]     # y distance at previous state
-
-                if s0.apple != s1.apple:  # Snake ate apple, positive reward
-                    reward = 1
-                
-                ##TODO:new distance formula
-                elif (abs(x1) > abs(x2) or abs(y1) > abs(y2)):
-                    reward = 1          #Snake is closer to the apple, positive reward
+                if s0.apple_one != s1.apple_one or s0.apple_two != s1.apple_two:  # Snake ate apple, positive reward
+                    reward = 50
                 else:
-                    reward = -1         # Snake is further from apple, negative reward
+                    reward = 0         # Snake is further from apple, negative reward
 
                 state_str = self.get_state_string(s0)
                 new_state_str = self.get_state_string(s1)
@@ -119,26 +110,45 @@ class qLearner(object):
                 #Bellman Equation
                 self.qvalues[state_str][a0] = self.qvalues[state_str][a0] + self.lr * (reward + self.discount*max(self.qvalues[new_state_str]) - self.qvalues[state_str][a0] ) 
 
-    def get_state(self, snake, direction, apple):
+    def get_state(self, snake, direction, apple_one,apple_two):
         #Coordinates of snake head
         snake_head = snake[-1] 
-        distanceX = apple[0] - snake_head[0]
-        distanceY = apple[1] - snake_head[1]
+        distanceX_one = apple_one[0] - snake_head[0]
+        distanceY_one = apple_one[1] - snake_head[1]
+        
+        distanceX_two = apple_two[0] - snake_head[0]
+        distanceY_two = apple_two[1] - snake_head[1]
 
         #Where is the apple in relation to the snake?
-        if distanceX > 0:
-            positionX = '1'     #Apple is to the right of the snake
-        elif distanceX < 0:
-            positionX = '0'     #Apple is to the left of the snake
+        if distanceX_one > 0:
+            positionX_one = '1'     #Apple is to the right of the snake
+        elif distanceX_one < 0:
+            positionX_one = '0'     #Apple is to the left of the snake
         else:
-            positionX = 'same'    #Apple and snake are on the same X file
+            positionX_one = 'same'    #Apple and snake are on the same X file
 
-        if distanceY > 0:
-            positionY = '3'     #Apple is below snake
-        elif distanceY < 0:
-            positionY = '2'     #Apple is above snake
+        if distanceY_one > 0:
+            positionY_one = '3'     #Apple is below snake
+        elif distanceY_one < 0:
+            positionY_one = '2'     #Apple is above snake
         else:
-            positionY = 'same'    #Apple and snake are on the same Y file
+            positionY_one = 'same'    #Apple and snake are on the same Y file
+
+
+        if distanceX_two > 0:
+            positionX_two = '1'     #Apple is to the right of the snake
+        elif distanceX_two < 0:
+            positionX_two = '0'     #Apple is to the left of the snake
+        else:
+            positionX_two = 'same'    #Apple and snake are on the same X file
+
+        if distanceY_two > 0:
+            positionY_two = '3'     #Apple is below snake
+        elif distanceY_two < 0:
+            positionY_two = '2'     #Apple is above snake
+        else:
+            positionY_two = 'same'    #Apple and snake are on the same Y file
+
 
         surrounding_list = self.generate_surroundings(snake)
         surroundings = ''.join(surrounding_list)
@@ -146,7 +156,7 @@ class qLearner(object):
         self.generate_surroundings(snake)
 
         #Return state
-        return GameState(distance = (distanceX, distanceY), position = (positionX, positionY), direction=direction, surroundings = surroundings, apple = apple)
+        return GameState(distance = (distanceX_one, distanceY_one,distanceX_two,distanceY_two), position = (positionX_one, positionY_one,positionX_two,positionY_two), direction=direction, surroundings = surroundings, apple_one = apple_one,apple_two =apple_two)
 
 
     def generate_surroundings(self,snake):
@@ -173,4 +183,4 @@ class qLearner(object):
         return surroundings      
 
     def get_state_string(self, state):
-        return str((state.position[0], state.position[1],state.direction, state.surroundings))
+        return str((state.position[0], state.position[1],state.position[2],state.position[3],state.direction, state.surroundings))

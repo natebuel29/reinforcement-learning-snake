@@ -115,7 +115,7 @@ def game_loop():
                 running = False
         
         #AI only knows about one apple - we must modify state and qLearner file to be functionable with 2 apples
-        qLearnerAction = qlearner.act([(xValue, yValue)],direction, apples[0].loc)
+        qLearnerAction = qlearner.act([(xValue, yValue)],direction, apples[0].loc,apples[1].loc)
         if qLearnerAction == 'left' and direction != "right":
             # move left
             xSpeed = -10
@@ -171,7 +171,7 @@ qlearner = qLearner.qLearner(window_width, window_height, BLOCK_SIZE)
 while True:
     pygame.init()
     qlearner.reset()
-    qlearner.decrease_epsilon(0.01)
+    qlearner.decrease_epsilon(0.005)
     score, reason = game_loop()
     print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason};Epsilon: {qlearner.epsilon}")
     game_count += 1

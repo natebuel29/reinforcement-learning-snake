@@ -62,12 +62,6 @@ def draw_surface(snake, apples):
     surface.blit(text, (0, 0))
     pygame.display.update()
 
-
-# def draw_apple(appleX, appleY):
-#     # draw a red rect to represent an apple
-#     pygame.draw.rect(surface, RED, pygame.Rect(appleX, appleY, 10, 10))
-
-
 def death(snake):
     head_x = snake[len(snake)-1][0]
     head_y = snake[len(snake)-1][1]
@@ -120,7 +114,7 @@ def game_loop():
                 running = False
         
         #AI only knows about one apple - we must modify state and qLearner file to be functionable with 2 apples
-        sarsaLearnerAction = sarsaLearner.act([(xValue, yValue)],direction, apples[0].loc)
+        sarsaLearnerAction = sarsaLearner.act([(xValue, yValue)],direction, apples[0].loc,apples[1].loc)
         if sarsaLearnerAction == 'left' and direction != "right":
             # move left
             xSpeed = -10
@@ -176,7 +170,7 @@ sarsaLearner = sarsaLearner.sarsaLearner(window_width, window_height, BLOCK_SIZE
 while True:
     pygame.init()
     sarsaLearner.reset()
-    sarsaLearner.decrease_epsilon(0.01)
+    sarsaLearner.decrease_epsilon(0.005)
     score, reason = game_loop()
     print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason};Epsilon: {sarsaLearner.epsilon}")
     game_count += 1
