@@ -1,5 +1,6 @@
 from pygame.locals import *
 from random import randint
+import csv
 import pygame
 import time
 import math
@@ -166,13 +167,18 @@ def draw_snake(snake):
 game_count = 1
 
 sarsaLearner = sarsaLearner.sarsaLearner(window_width, window_height, BLOCK_SIZE)
+with open('sarsa_data.csv', mode='w', newline='') as csv_file:
+    fieldnames = ['game_number', 'score', 'death_reason']
+    writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
-while True:
-    pygame.init()
-    sarsaLearner.reset()
-    sarsaLearner.decrease_epsilon(0.005)
-    score, reason = game_loop()
-    print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason};Epsilon: {sarsaLearner.epsilon}")
-    game_count += 1
-    if game_count % 100 == 0:
-        sarsaLearner.save_qvalues()
+    writer.writeheader()
+    while True:
+        pygame.init()
+        sarsaLearner.reset()
+        sarsaLearner.decrease_epsilon(0.005)
+        score, reason = game_loop()
+        print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason};Epsilon: {sarsaLearner.epsilon}")
+        writer.writerow({'game_number': game_count, 'score': score, 'death_reason': reason})
+        game_count += 1
+        if game_count % 100 == 0:
+            sarsaLearner.save_qvalues()

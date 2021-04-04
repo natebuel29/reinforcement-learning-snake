@@ -3,6 +3,7 @@ from random import randint
 import pygame
 import time
 import math
+import csv
 import qLearner
 pygame.init()
 
@@ -168,12 +169,20 @@ game_count = 1
 
 qlearner = qLearner.qLearner(window_width, window_height, BLOCK_SIZE)
 
-while True:
-    pygame.init()
-    qlearner.reset()
-    qlearner.decrease_epsilon(0.005)
-    score, reason = game_loop()
-    print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason};Epsilon: {qlearner.epsilon}")
-    game_count += 1
-    if game_count % 100 == 0:
-        qlearner.save_qvalues()
+with open('qlearning_data.csv', mode='w', newline='') as csv_file:
+    fieldnames = ['game_number', 'score', 'death_reason']
+    writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+    writer.writeheader()
+
+
+    while True:
+        pygame.init()
+        qlearner.reset()
+        qlearner.decrease_epsilon(0.005)
+        score, reason = game_loop()
+        print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason};Epsilon: {qlearner.epsilon}")
+        writer.writerow({'game_number': game_count, 'score': score, 'death_reason': reason})
+
+        game_count += 1
+        if game_count % 100 == 0:
+            qlearner.save_qvalues()
