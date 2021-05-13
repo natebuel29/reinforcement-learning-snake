@@ -33,9 +33,6 @@ class Apple:
     def draw(self):
           pygame.draw.rect(surface, RED, pygame.Rect(self.x, self.y, 10, 10))
 
-# MAYBE:create snake class to encapsulate all methods/variables related to snake (move, draw, die, get head, direction)
-# and for apple --> (spawn at random location, draw, and cordinates)
-
 window_height = 300
 window_width = 300
 BLOCK_SIZE = 10
@@ -175,10 +172,12 @@ with open('sarsa_data.csv', mode='w', newline='') as csv_file:
     while True:
         pygame.init()
         sarsaLearner.reset()
+        #edecrease epsilon by 0.005
         sarsaLearner.decrease_epsilon(0.005)
         score, reason = game_loop()
         print(f"Game: {game_count}; Score: {score}; Reason_of_Death: {reason};Epsilon: {sarsaLearner.epsilon}")
         writer.writerow({'game_number': game_count, 'score': score, 'death_reason': reason})
         game_count += 1
+        game_count += 1
         if game_count % 100 == 0:
-            sarsaLearner.save_qvalues()
+            sarsaLearner.save_qvalues(path=f"qvalues_{game_count}.json")
